@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Júlia's 14th Era</title>
+    <title>A 14ª Era da Júlia</title>
+    <!-- Bibliotecas Gratuitas -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -24,16 +25,41 @@
         .animate-float { animation: float 4s ease-in-out infinite; }
         .alphabet-grid { display: grid; grid-template-columns: repeat(9, 1fr); gap: 8px; max-width: 450px; width: 100%; }
         @media (max-width: 640px) { .alphabet-grid { grid-template-columns: repeat(7, 1fr); gap: 4px; } }
+        
+        /* Estilo do botão de música */
+        .music-btn {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            z-index: 200;
+            background: rgba(244, 63, 94, 0.8);
+            backdrop-filter: blur(10px);
+            border: 2px solid white;
+            border-radius: 50%;
+            width: 55px;
+            height: 55px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 0 20px rgba(244, 63, 94, 0.4);
+        }
+        .music-btn:active { transform: scale(0.9); }
+        .music-playing { animation: pulse-red 2s infinite; }
+        @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(244, 63, 94, 0); } 100% { box-shadow: 0 0 0 0 rgba(244, 63, 94, 0); } }
     </style>
 </head>
 <body>
     <div id="root"></div>
     <script type="text/babel">
-        const { useState, useEffect } = React;
+        const { useState, useEffect, useRef } = React;
 
         const App = () => {
             const [stLight, setStLight] = useState(-1);
             const [activeSection, setActiveSection] = useState(0);
+            const [isPlaying, setIsPlaying] = useState(false);
+            const audioRef = useRef(null);
             const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
             useEffect(() => {
@@ -51,8 +77,43 @@
                 setActiveSection(idx);
             };
 
+            const toggleMusic = () => {
+                if (isPlaying) {
+                    audioRef.current.pause();
+                } else {
+                    audioRef.current.play().catch(err => console.log("User must interact first"));
+                }
+                setIsPlaying(!isPlaying);
+            };
+
             return (
                 <div className="snap-container" onScroll={handleScroll}>
+                    {/* Elemento de Áudio - Never Ending Story */}
+                    <audio 
+                        ref={audioRef} 
+                        loop 
+                        src="neverending-story.jpeg" 
+                    >
+                        {/* DICA: Se o ficheiro de música for um .mp3, renomeia-o para neverending-story.jpeg 
+                           apenas se quiseres enganar o github/vercel, mas o ideal é usares .mp3 no src 
+                           e teres o ficheiro na pasta. 
+                        */}
+                    </audio>
+
+                    {/* Botão de Controle de Som */}
+                    <div className={`music-btn ${isPlaying ? 'music-playing' : ''}`} onClick={toggleMusic}>
+                        {isPlaying ? (
+                            <div className="flex gap-1 items-end h-4">
+                                <div className="w-1 bg-white animate-[bounce_0.6s_infinite]"></div>
+                                <div className="w-1 bg-white animate-[bounce_0.8s_infinite]"></div>
+                                <div className="w-1 bg-white animate-[bounce_0.5s_infinite]"></div>
+                            </div>
+                        ) : (
+                            <span className="text-white text-xs font-bold">SOM 🎵</span>
+                        )}
+                    </div>
+
+                    {/* Barra de Progresso Superior */}
                     <div className="fixed top-0 left-0 w-full h-1.5 flex gap-1 z-[100] p-1 bg-black/20">
                         {[...Array(10)].map((_, i) => (
                             <div key={i} className="flex-1 h-full bg-white/10 rounded-full overflow-hidden">
@@ -61,17 +122,20 @@
                         ))}
                     </div>
 
+                    {/* 0. CAPA */}
                     <section className="snap-section bg-white text-black">
                         <div className="text-center">
                             <h1 className="text-7xl md:text-[10rem] font-serif uppercase italic leading-none mb-4">Júlia</h1>
                             <div className="h-px w-32 bg-black/10 mx-auto my-8"></div>
-                            <h2 className="text-2xl font-light tracking-[0.4em] text-zinc-500 uppercase">Chapter 14</h2>
+                            <h2 className="text-2xl font-light tracking-[0.4em] text-zinc-500 uppercase italic">A Nossa Princesa</h2>
                             <p className="mt-24 text-[9px] uppercase tracking-[0.3em] text-rose-500 animate-pulse font-bold">Dá um scroll pra baixo, filha!</p>
+                            <p className="mt-4 text-[10px] text-zinc-300 font-bold uppercase tracking-widest">Ativa a música ali no botão!</p>
                         </div>
                     </section>
 
+                    {/* 1. STRANGER THINGS - BEBE */}
                     <section className="snap-section st-wall p-4">
-                        <h2 className="text-red-700 font-serif italic text-3xl mb-10 drop-shadow-[0_0_10px_red]">Gênesis: Onde tudo começou</h2>
+                        <h2 className="text-red-700 font-serif italic text-3xl mb-10 drop-shadow-[0_0_10px_red]">Onde tudo começou...</h2>
                         <div className="alphabet-grid mb-12">
                             {alphabet.map((l, idx) => (
                                 <div key={l} className="flex flex-col items-center">
@@ -86,61 +150,68 @@
                         </div>
                     </section>
 
+                    {/* 2. 2 ANOS */}
                     <section className="snap-section bg-[#fdfcfb]">
                         <div className="polaroid rotate-6">
                             <img src="2anos.jpeg" className="w-60 md:w-72 h-auto" />
-                            <p className="font-cursive text-rose-400 text-center mt-3 text-2xl">2 aninhos de pura fofura</p>
+                            <p className="font-cursive text-rose-400 text-center mt-3 text-2xl">2 aninhos de fofura!</p>
                         </div>
                     </section>
 
-                    <section className="snap-section bg-yellow-400 text-zinc-800">
+                    {/* 3. CHAVES */}
+                    <section className="snap-section bg-yellow-400">
                         <div className="absolute top-0 w-full h-24 bg-orange-600 flex items-center justify-center font-retro text-white text-3xl italic">Isso, isso, isso!</div>
                         <div className="polaroid -rotate-2 border-8 border-orange-500 mt-12 scale-110">
                             <img src="chaves.jpeg" className="w-64 h-80 object-cover" />
-                            <p className="font-retro text-center mt-4 text-3xl italic">Juju no Barril</p>
+                            <p className="font-retro text-center mt-4 text-3xl italic text-zinc-800">No Barril do Chaves!</p>
                         </div>
                     </section>
 
+                    {/* 4. PIJAMAS */}
                     <section className="snap-section bg-rose-50 p-6">
                         <div className="polaroid shadow-2xl">
                             <img src="pijamas.jpeg" className="w-64 h-80 object-cover" />
-                            <p className="font-serif italic text-zinc-400 text-center mt-3 text-sm">Tal mãe, tal filha!</p>
+                            <p className="font-serif italic text-rose-400 text-center mt-3 text-sm">Tal mãe, tal filha! Grudadinhas!</p>
                         </div>
-                        <p className="mt-14 text-zinc-500 font-light text-center italic">Grudadinhas desde sempre...</p>
                     </section>
 
+                    {/* 5. BOLSA AMARELA 2022 */}
                     <section className="snap-section bg-zinc-950 text-white p-6">
                         <div className="w-72 h-[30rem] border border-white/10 overflow-hidden relative rounded-2xl">
                             <img src="bolsa_amarela.jpeg" className="w-full h-full object-cover" />
                             <div className="absolute bottom-8 left-8 text-left">
                                 <p className="text-yellow-400 font-black text-5xl italic uppercase mb-1">2022</p>
-                                <p className="text-white text-[10px] font-light tracking-[0.3em] uppercase">Lookinho de milhões!</p>
+                                <p className="text-white text-[10px] font-light tracking-[0.3em] uppercase">Lookinho de milhões, hein!</p>
                             </div>
                         </div>
                     </section>
 
+                    {/* 6. MAFALDA */}
                     <section className="snap-section bg-[#e5e7eb]">
-                        <div className="polaroid -rotate-3 mb-10 border border-zinc-200">
+                        <div className="polaroid -rotate-3 mb-10">
                             <img src="mafalda.jpeg" className="w-64 h-80 object-cover" />
-                            <p className="font-serif text-zinc-400 text-center mt-3 text-sm italic">Bate-papo com a Mafalda em Montevideo</p>
+                            <p className="font-serif text-zinc-500 text-center mt-3 text-sm italic">Bate-papo em Montevideo!</p>
                         </div>
                     </section>
 
+                    {/* 7. BEACH TENNIS */}
                     <section className="snap-section bg-sky-950 text-white p-6">
-                        <div className="bg-white/5 backdrop-blur-xl p-4 border border-white/10 rounded-[2.5rem] shadow-2xl relative">
+                        <div className="bg-white/5 backdrop-blur-xl p-4 border border-white/10 rounded-[2.5rem] relative">
                             <div className="absolute -top-4 -right-4 bg-yellow-400 text-black px-6 py-2 rounded-full font-black text-[10px] uppercase italic">PRO PLAYER</div>
                             <img src="beach_tennis.jpeg" className="w-72 h-[26rem] object-cover rounded-[2rem]" />
                         </div>
                         <h3 className="mt-10 font-black text-6xl italic text-sky-300 uppercase">Campeã!</h3>
                     </section>
 
+                    {/* 8. PLACA MONTEVIDEO */}
                     <section className="snap-section bg-[#f9f9f9] p-6">
                         <div className="polaroid shadow-2xl border-t-[12px] border-rose-400 scale-105">
                             <img src="placa_montevideo.jpeg" className="w-80 h-[28rem] object-cover" />
-                            <p className="font-serif italic text-zinc-400 text-center mt-4 tracking-widest uppercase text-xs">Nossa melhor viagem</p>
+                            <p className="font-serif italic text-zinc-400 text-center mt-4 uppercase text-xs">Nossa melhor aventura em família</p>
                         </div>
                     </section>
 
+                    {/* 9. MENSAGEM FINAL */}
                     <section className="snap-section bg-white text-black p-10 text-center">
                         <div className="max-w-md w-full space-y-12">
                             <h2 className="text-5xl font-serif italic text-zinc-800 leading-tight">Nossa Júlia,</h2>
@@ -152,7 +223,7 @@
                             <div className="pt-14 border-t border-zinc-100">
                                 <p className="text-rose-500 font-bold uppercase text-[10px] mb-4">Com todo o nosso amor,</p>
                                 <p className="text-5xl font-cursive text-zinc-900">Papai Gustavo & Mamãe Juliana</p>
-                                <p className="mt-4 text-xs text-zinc-400 tracking-widest uppercase">26/03/2026</p>
+                                <p className="mt-4 text-xs text-zinc-400 tracking-widest uppercase font-bold">26/03/2026</p>
                             </div>
                         </div>
                     </section>
